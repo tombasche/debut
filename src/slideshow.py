@@ -18,7 +18,8 @@ class SlideShow:
 
             slide.display(self.screen)
             if self._can_move_to_next_slide():
-                endwin()
+                screen.erase()
+                screen.refresh()
 
     def initialise_screen(self, screen):
         self.screen = screen or initscr()

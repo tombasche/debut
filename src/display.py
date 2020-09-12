@@ -1,10 +1,40 @@
 from curses import A_BOLD, A_UNDERLINE, COLOR_RED, COLOR_BLACK, init_pair, color_pair, COLOR_WHITE, COLOR_BLUE
-from functools import reduce
+from dataclasses import dataclass
+from functools import reduce, partial
 from time import sleep
 from typing import List
 
 
-class DisplayString:
+@dataclass
+class AnimatedWriter:
+    x: int
+    y: int
+
+    x_offset: int
+    y_offset: int
+
+    max_width: int
+
+    def new_line(self, initial_x: int):
+        self.x = initial_x
+        self.y += 1
+
+    def move_cursor(self):
+        self.x += 1
+
+    def set_writing_coords(self):
+        self.x += self.x_offset
+        self.y += self.y_offset
+
+    @property
+    def at_edge_of_screen(self) -> bool:
+        return self.x >= self.max_width
+
+    def word_will_overflow(self, word_length: int) -> bool:
+        return word_length + self.x + self.x_offset >= self.max_width
+
+
+class DisplayText:
 
     colors = {
         'red': COLOR_RED,
@@ -36,30 +66,44 @@ class DisplayString:
         text_color='white',
         animate=True
     ):
-        max_height, max_width = screen.getmaxyx()
+        _, max_width = screen.getmaxyx()
         cls.check_if_valid_options(format_options)
         color_pair_choice = get_or_set_color_pair(cls.colors[text_color], cls.colors[highlight_color])
 
+        display_string = partial(
+            cls._display_string,
+            color_choice=color_pair_choice,
+            format_options=format_options,
+            screen=screen
+        )
+
         if animate:
-            x_offset = 0
-            y_offset = 0
-            for i, character in enumerate(text):
-                y = coords[0] + y_offset
-                x = coords[1] + x_offset
-                if x >= max_width:
-                    x_offset = 0
-                    y_offset += 1
-                    y = coords[0] + y_offset
-                    x = coords[1] + x_offset
-                screen.addstr(y, x, character, cls.combine_options(color_pair(color_pair_choice), format_options))
-                sleep(cls.delay_between_letters)
+            w = AnimatedWriter(coords[1], coords[0], 0, 0, max_width)
+            for word in text.split(" "):
+
+                if w.word_will_overflow(len(word)):
+                    w.new_line(coords[1])
+
+                for character in word:
+                    w.set_writing_coords()
+                    
+                    if w.at_edge_of_screen:
+                        w.new_line(coords[1])
+
+                    display_string(coords=[w.y, w.x], text=character)
+                    sleep(cls.delay_between_letters)
+                    screen.refresh()
+                    w.move_cursor()
+
+                w.move_cursor()
                 screen.refresh()
-                x_offset += 1
-
         else:
-            screen.addstr(coords[0], coords[1], text,
-                          cls.combine_options(color_pair(color_pair_choice), format_options))
+            display_string(coords=[coords[0], coords[1]], text=text)
+        screen.refresh()
 
+    @classmethod
+    def _display_string(cls, screen=None, coords=None, text=None, color_choice=None, format_options=None):
+        return screen.addstr(coords[0], coords[1], text, cls.combine_options(color_pair(color_choice), format_options))
 
     @classmethod
     def combine_options(cls, color_pair, format_options: List[str]):
@@ -77,6 +121,10 @@ class DisplayString:
         for option in format_options:
             if option not in cls.formatting:
                 raise UnknownFormatOption(option)
+
+
+def at_edge_of_screen(x: int, max_width: int) -> bool:
+    return x >= max_width
 
 
 def get_or_set_color_pair(text_color: int, highlight_color: int):

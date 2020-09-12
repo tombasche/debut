@@ -1,6 +1,6 @@
 from time import sleep
 
-from src.display import DisplayString
+from src.display import DisplayText
 
 
 class Slide:
@@ -11,10 +11,9 @@ class Slide:
 
     def display(self, screen=None):
         self._display_heading(screen)
-        DisplayString.display([3, 5], self._text, screen, text_color='red')
-        screen.refresh()
+        DisplayText.display([3, 5], self._text, screen, text_color='red')
 
     def _display_heading(self, screen):
-        DisplayString.display([0, 5], self._heading, screen, highlight_color='blue', format_options=['bold', 'underline'])
-        DisplayString.display([1, 5], "=" * 30, screen, format_options=['bold', 'underline'], animate=False)
+        DisplayText.display([0, 5], self._heading, screen, highlight_color='blue', format_options=['bold', 'underline'])
+        DisplayText.display([1, 5], "=" * 30, screen, format_options=['bold', 'underline'], animate=False)
         sleep(0.1)
