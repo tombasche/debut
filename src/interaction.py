@@ -2,7 +2,7 @@
 SPACEBAR_ASCII = 32
 
 
-class NextAction:
+class InputListener:
 
     continue_character = SPACEBAR_ASCII
 

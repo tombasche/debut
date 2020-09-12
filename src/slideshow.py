@@ -1,7 +1,7 @@
 from curses import initscr, endwin, noecho, start_color, newwin
 from typing import List
 
-from src.interaction import NextAction
+from src.interaction import InputListener
 from src.slide import Slide
 
 
@@ -28,4 +28,4 @@ class SlideShow:
         noecho()
 
     def _can_move_to_next_slide(self):
-        NextAction(self.screen).wait_for_input()
+        InputListener(self.screen).wait_for_input()

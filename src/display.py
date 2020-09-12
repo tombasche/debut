@@ -2,7 +2,9 @@ from curses import A_BOLD, A_UNDERLINE, COLOR_RED, COLOR_BLACK, init_pair, color
 from dataclasses import dataclass
 from functools import reduce, partial
 from time import sleep
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Optional
+
+from src.interaction import InputListener
 
 
 @dataclass
@@ -59,32 +61,40 @@ class DisplayText:
 
     tab_size: int = 4
 
-    @classmethod
+    def __init__(self, screen, coords: List[int], input_listener: Optional[InputListener] = None):
+        self._screen = screen
+        self._coords = coords
+
+        max_height, max_width = self._screen.getmaxyx()
+        self.max_height: int = max_height
+        self.max_width: int = max_width
+
+        self._input_listener = input_listener
+
     def display(
-        cls,
-        coords: List[int],
+        self,
         text: str,
-        screen,
         format_options: List[str] = None,
         highlight_color='black',
         text_color='white',
         animate=True
     ):
-        _, max_width = screen.getmaxyx()
-        cls.check_if_valid_options(format_options)
-        color_pair_choice = get_or_set_color_pair(cls.colors[text_color], cls.colors[highlight_color])
+
+        self.check_if_valid_options(format_options)
+        color_pair_choice = get_or_set_color_pair(self.colors[text_color], self.colors[highlight_color])
 
         display_string = partial(
-            cls._display_string,
+            self._display_string,
             color_choice=color_pair_choice,
             format_options=format_options,
-            screen=screen
+            screen=self._screen
         )
 
-        left_alignment = coords[1]
+        left_alignment = self._coords[1]
+        coords = self._coords
 
         if animate:
-            w = AnimatedWriter(coords[1], coords[0], 0, 0, max_width)
+            w = AnimatedWriter(coords[1], coords[0], 0, 0, self.max_width)
             for word in text.split(" "):
 
                 if w.word_will_overflow(len(word)):
@@ -98,43 +108,43 @@ class DisplayText:
 
                     if character == '\n':
                         w.new_line(left_alignment)
-                        left_alignment = coords[1] - 1
+                        left_alignment = coords[1] -1
 
-                        # need to wait for input _if_ it's specified
+                        if self._input_listener:
+                            self._input_listener.wait_for_input()
+                    elif character == '\t':
+                        left_alignment += self.tab_size
 
-                    if character == '\t':
-                        left_alignment += cls.tab_size
+                    else:
+                        left_alignment = self._coords[1]
 
                     display_string(coords=[w.y, w.x], text=character)
                     sleep(character_delay(text))
-                    screen.refresh()
+                    self._screen.refresh()
                     w.move_cursor()
 
                 w.move_cursor()
-                screen.refresh()
+                self._screen.refresh()
         else:
             display_string(coords=[coords[0], coords[1]], text=text)
-        screen.refresh()
+        self._screen.refresh()
 
-    @classmethod
-    def _display_string(cls, screen=None, coords=None, text=None, color_choice=None, format_options=None):
-        return screen.addstr(coords[0], coords[1], text, cls.combine_options(color_pair(color_choice), format_options))
+    def _display_string(self, screen=None, coords=None, text=None, color_choice=None, format_options=None):
+        return screen.addstr(coords[0], coords[1], text, self.combine_options(color_pair(color_choice), format_options))
 
-    @classmethod
-    def combine_options(cls, color_pair, format_options: List[str]):
+    def combine_options(self, color_pair, format_options: List[str]):
         if not format_options:
             return 0
         if len(format_options) > 1:
-            options = reduce(lambda x, y: cls.formatting[x] | cls.formatting[y], format_options)
+            options = reduce(lambda x, y: self.formatting[x] | self.formatting[y], format_options)
             return options | color_pair
-        return cls.formatting[format_options[0]]
+        return self.formatting[format_options[0]]
 
-    @classmethod
-    def check_if_valid_options(cls, format_options: List[str]):
+    def check_if_valid_options(self, format_options: List[str]):
         if not format_options:
             return
         for option in format_options:
-            if option not in cls.formatting:
+            if option not in self.formatting:
                 raise UnknownFormatOption(option)
 
 

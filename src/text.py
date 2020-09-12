@@ -7,7 +7,7 @@ class Text:
         self._text = text
 
     def render(self) -> str:
-        return '\n'.join(self._text)
+        return '\n\n'.join(self._text)
 
 
 class DotPointText(Text):

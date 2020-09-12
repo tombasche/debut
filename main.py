@@ -39,12 +39,29 @@ def main():
             "* What ideas did you discard along the way and why?",
             "* What were the challenges?",
             "* Can the person reading the code understand what it does without you explaining it?",
-            "How do we reach our goal in such a way that maintains our agility - is there something that might hinder us as part of a technical solution?"
+            "How do we reach our goal in such a way that maintains our agility - is there something that might hinder us as part of a technical solution?",
+            "Put yourself in the shoes of a customer or product owner - would they be happy with a 'hacky solution'? They're paying a lot of money for it."
         ])
     )
-    slide_show = SlideShow([slide_1],)
-    # slide_show = SlideShow([slide_1, slide_2, slide_3, slide_4, slide_5],)
-
+    slide_6 = Slide(
+        heading="So how do we get there?",
+        text=DotPointText([
+            "There's resources left, right and centre about technical excellence and good design: ",
+            "* Clean Code, by Robert Martin (Uncle Bob)",
+            "* The Pragmatic Programmer by Andy Hunt and Dave Thomas",
+            "* Test-Driven Development by Example by Kent Beck",
+            "* Dozens of conference talks on YouTube!",
+            "* TALK to your fellow software engineers about decisions and discuss design when writing code. You'll either be surprised by how much they have to say, or what they're willing to learn."
+        ])
+    )
+    slide_7 = Slide(
+        heading="Questions? ⁉️",
+        text=Text([
+            "This presentation was created by me 🤓   and is on github: github.com/tombasche/agile-manifesto-presentation",
+            "The framework is something I created because ... why not. It uses 'curses' under the hood, a nearly 30-year old API that ships with UNIX/POSIX systems which efficiently writes text to the terminal."
+        ])
+    )
+    slide_show = SlideShow([slide_1, slide_2, slide_3, slide_4, slide_5, slide_6, slide_7],)
     slide_show.present()
 
 

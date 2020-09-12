@@ -49,8 +49,8 @@ regressing and compromising the existing speed at which we can make changes.
 
 * There's resources left, right and centre about technical excellence and good design:
   * Clean Code, by Robert Martin (Uncle Bob)
-  * The Pragmatic Programmer by Dave Thomas
-  * Test-Driven Development by Kent Beck
+  * The Pragmatic Programmer by Andy Hunt and Dave Thomas
+  * Test-Driven Development by Example by Kent Beck
   * Dozens of conference talks on YouTube!
   * TALK to your fellow software engineers about decisions and discuss design when writing code.
      * You'll either be surprised by how much they have to say, or what they're willing to learn.
