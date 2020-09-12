@@ -1,4 +1,5 @@
-from curses import A_BOLD, A_UNDERLINE, COLOR_RED, COLOR_BLACK, init_pair, color_pair, COLOR_WHITE, COLOR_BLUE
+from curses import A_BOLD, A_UNDERLINE, COLOR_RED, COLOR_BLACK, init_pair, color_pair, COLOR_WHITE, COLOR_BLUE, \
+    A_STANDOUT
 from dataclasses import dataclass
 from functools import reduce, partial
 from time import sleep
@@ -51,7 +52,8 @@ class DisplayText:
 
     decoration = {
         'bold': A_BOLD,
-        'underline': A_UNDERLINE
+        'underline': A_UNDERLINE,
+        'highlighted': A_STANDOUT,
     }
 
     formatting = {
@@ -75,11 +77,14 @@ class DisplayText:
         self,
         text: str,
         format_options: List[str] = None,
-        highlight_color='black',
-        text_color='white',
+        highlight_color=None,
+        text_color=None,
         animate=True,
         custom_character_delay: float = None
     ):
+
+        highlight_color = highlight_color or 'black'
+        text_color = text_color or 'white'
 
         self.check_if_valid_options(format_options)
         color_pair_choice = get_or_set_color_pair(self.colors[text_color], self.colors[highlight_color])

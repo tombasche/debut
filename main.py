@@ -56,7 +56,8 @@ def main():
         heading="How do we maintain 'continuous attention' to these things?",
         text=DotPointText([
             "Put yourself in the shoes of a customer or product owner",
-            "* Would they be happy with a 'hacky solution'? They're paying a lot of money for it!"
+            "* Would they be happy with a 'hacky solution'? ",
+            "* They're paying a lot of money for it!"
         ])
     )
     slide_7 = Slide(
@@ -74,14 +75,15 @@ def main():
     slide_8 = Slide(
         heading="Questions? ⁉️",
         text=Text([
-            "This presentation was created by me 🤓   and is on github: github.com/tombasche/agile-manifesto-presentation",
+            "This presentation was created by me and is on github: ",
+            "* github.com/tombasche/agile-manifesto-presentation",
             "The framework is something I created because ... why not. It uses 'curses' under the hood, a nearly 30-year old API that ships with UNIX/POSIX systems which efficiently writes text to the terminal.",
             "You could pull the code down and create your own 'slideshow' with it if you were so inclined...\n",
             "slide_show = SlideShow([title_slide, slide_1, slide_2, slide_3, slide_4, slide_5, slide_6, slide_7, slide_8],)",
             "slide_show.present()"
         ])
     )
-    slide_show = SlideShow([title_slide, slide_1, slide_2, slide_3, slide_4, slide_5, slide_6, slide_7, slide_8],)
+    slide_show = SlideShow([title_slide, slide_1, slide_2, slide_3, slide_4, slide_5, slide_6, slide_7, slide_8])
     slide_show.present()
 
 

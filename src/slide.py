@@ -1,4 +1,5 @@
 from curses import curs_set
+from typing import List, Optional
 
 from src.display import DisplayText
 from src.interaction import InputListener
@@ -7,12 +8,25 @@ from src.text import Text
 
 class Slide:
 
-    def __init__(self, heading: str, text: Text, advance_on_input=True, animated_heading=False):
+    def __init__(
+        self,
+        heading: str,
+        text: Text,
+        advance_on_input: bool = True,
+        animated_heading: bool = False,
+        body_formatting_options: Optional[List[str]] = None,
+        body_text_color: Optional[str] = None,
+        body_highlight_color: Optional[str] = None
+    ):
         self._heading = heading
         self._text = text
         self.advance_on_input = advance_on_input
 
         self._animated_heading = animated_heading
+
+        self._body_formatting_options = body_formatting_options
+        self._body_text_color = body_text_color
+        self._body_highlight_color = body_highlight_color
 
     def display(self, screen):
 
@@ -22,11 +36,16 @@ class Slide:
         self._display_heading(screen, input_listener, )
 
         slide_body = DisplayText(screen=screen, coords=[3, 3], input_listener=input_listener)
-        slide_body.display(text=self._text.render())
+        slide_body.display(
+            text=self._text.render(),
+            text_color=self._body_text_color,
+            highlight_color=self._body_highlight_color,
+            format_options=self._body_formatting_options,
+        )
 
         self._display_nav_indicator(screen)
 
-    def _display_heading(self, screen, input_listener):
+    def _display_heading(self, screen, input_listener: InputListener):
 
         heading_text = DisplayText(screen=screen, coords=[0, 5])
         heading_text.display(
@@ -93,5 +112,5 @@ class TitleSlide:
 
     @property
     def created_by(self) -> str:
-        return f"By {self._author}  "
+        return f"By {self._author}"
 
