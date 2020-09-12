@@ -2,7 +2,7 @@ from curses import A_BOLD, A_UNDERLINE, COLOR_RED, COLOR_BLACK, init_pair, color
 from dataclasses import dataclass
 from functools import reduce, partial
 from time import sleep
-from typing import List
+from typing import List, Dict, Tuple
 
 
 @dataclass
@@ -86,7 +86,7 @@ class DisplayText:
 
                 for character in word:
                     w.set_writing_coords()
-                    
+
                     if w.at_edge_of_screen:
                         w.new_line(coords[1])
 
@@ -123,11 +123,7 @@ class DisplayText:
                 raise UnknownFormatOption(option)
 
 
-def at_edge_of_screen(x: int, max_width: int) -> bool:
-    return x >= max_width
-
-
-def get_or_set_color_pair(text_color: int, highlight_color: int):
+def get_or_set_color_pair(text_color: int, highlight_color: int) -> int:
     color_pair_values = list(COLOR_PAIR_CACHE.values())
     if color_pair_values:
         last_pair = max(color_pair_values)
@@ -144,7 +140,7 @@ def get_or_set_color_pair(text_color: int, highlight_color: int):
     return next_available_pair
 
 
-COLOR_PAIR_CACHE = {}
+COLOR_PAIR_CACHE: Dict[Tuple[int, int], int] = {}
 
 
 class UnknownFormatOption(Exception):

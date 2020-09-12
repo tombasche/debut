@@ -1,4 +1,4 @@
-from curses import initscr, endwin, noecho, start_color
+from curses import initscr, endwin, noecho, start_color, newwin
 from typing import List
 from src.slide import Slide
 
@@ -12,17 +12,19 @@ class SlideShow:
 
         self.screen = None
 
-    def present(self, screen=None):
-        self.initialise_screen(screen)
+    def present(self):
         for slide in self._slides:
-
+            self.initialise_screen()
             slide.display(self.screen)
             if self._can_move_to_next_slide():
-                screen.erase()
+                screen.clear()
                 screen.refresh()
+                endwin()
 
-    def initialise_screen(self, screen):
-        self.screen = screen or initscr()
+    def initialise_screen(self):
+        global_screen = initscr()
+        max_height, max_width = global_screen.getmaxyx()
+        self.screen = newwin(max_height, max_width, 0, 0)
         start_color()
         noecho()
 
