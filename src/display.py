@@ -121,13 +121,17 @@ class DisplayText:
 
                     display_string(coords=[w.y, w.x], text=character)
                     sleep(custom_character_delay or character_delay(text))
-                    self._screen.refresh()
+                    self.auto_redraw()
                     w.move_cursor()
 
                 w.move_cursor()
-                self._screen.refresh()
+                self.auto_redraw()
         else:
             display_string(coords=[coords[0], coords[1]], text=text)
+
+        self.auto_redraw()
+
+    def auto_redraw(self):
         self._screen.refresh()
 
     def _display_string(self, screen=None, coords=None, text=None, color_choice=None, format_options=None):
@@ -135,7 +139,7 @@ class DisplayText:
 
     def combine_options(self, color_pair, format_options: List[str]):
         if not format_options:
-            return 0
+            return color_pair
         if len(format_options) > 1:
             options = reduce(lambda x, y: self.formatting[x] | self.formatting[y], format_options)
             return options | color_pair
@@ -147,6 +151,9 @@ class DisplayText:
         for option in format_options:
             if option not in self.formatting:
                 raise UnknownFormatOption(option)
+
+    def shift_y_by(self, shift: int):
+        self._coords[0] += shift
 
 
 def character_delay(text: str) -> float:
