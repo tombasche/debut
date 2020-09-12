@@ -9,11 +9,10 @@ class InputListener:
         self._screen = screen
 
     def wait_for_input(self):
-        moving_on = False
-        while moving_on is False:
+        while True:
             keypress = int(self._screen.getch())
             if self.pressed_spacebar(keypress) or self.pressed_forward(keypress):
-                moving_on = True
+                return
 
     def pressed_spacebar(self, keypress: int) -> bool:
         return keypress == SPACEBAR_ASCII
