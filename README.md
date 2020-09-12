@@ -1,58 +1,41 @@
-Agile Presentation Slideshow
-============================
+## Usage
 
-## Introduction
+```
+python main.py
+```
 
-Continuous attention to technical excellence
-and good design enhances agility.
+The slideshow will pause for input after the headers and each paragraph of text after it animates.
 
-## What is technical excellence?
+Once the nav indicator appears in the bottom left corner then you can choose to go back or forward.
 
-* Technical excellence, with respect to software, 
-refers to a level of quality, maintainability and extensibility of software that is primarily expressed through
-a lack of defects and an abundance in business value.
+Note that this will only work in supported terminals ... the IntelliJ terminal isn't one of them.
 
-* This means software which *works* and software that is *valuable*
 
-## What is good design? 
+## The SlideShow framework
 
-* To design is to develop a plan or specification for the implementation of something, be it code, data or process.
+* Probably should think of a name for it and make it a separate library!
 
-* A good design satisfies certain goals and constraints, takes into account aesthetic and functional considerations
-and is expected to interact within its environment. 
+### Make your own slideshow: 
 
-## How do these things enhance agility?
+```python
+from slideshow import SlideShow
+from slide import Slide
+from text import Text
 
-* A good design, one which adheres to software design principles, provides us with software that allows us to move fast forever.
+title_slide = TitleSlide(
+    title="Dagon",
+    author="H.P. Lovecraft"
+)
+slide_1 = Slide(
+    heading="Spooky things",
+    text=Text([
+        "First a spooky thing happened",
+        "Then another"
+    ])
+)
+slideshow = SlideShow([title_slide, slide_1])
+slideshow.present()
+```
 
-* If we understand and can reason about the design of the code we can make fast decisions on the back of moving business requirements without
-regressing and compromising the existing speed at which we can make changes.
-
-* Technical excellence means less time spent fixing bugs, and less time spent cleaning up mistakes.
-
-## How do we maintain 'continuous attention'?
-
-* Pair-programming helps us stay honest. Question the why and the how of an implementation. Play devil's advocate.
-
-* Let's talk about the code during a desk check! 
-  * What might you have done differently?
-  * What ideas did you discard along the way and why?
-  * What were the challenges?
-  * Can the person reading the code understand what it does without you explaining it?
-
-* How do we reach our goal in such a way that maintains our agility - is there something that might hinder us
- as part of a technical solution?
- 
-* Put yourself in the shoes of a customer or product owner - would they be happy with a 'hacky solution'? They're paying a lot of money for it.
-
-## How do we get there?
-
-* There's resources left, right and centre about technical excellence and good design:
-  * Clean Code, by Robert Martin (Uncle Bob)
-  * The Pragmatic Programmer by Andy Hunt and Dave Thomas
-  * Test-Driven Development by Example by Kent Beck
-  * Dozens of conference talks on YouTube!
-  * TALK to your fellow software engineers about decisions and discuss design when writing code.
-     * You'll either be surprised by how much they have to say, or what they're willing to learn.
-
-* Participate in the software engineering chapter!
+* A `Text()` object accepts a list of strings to render as individual paragraphs.
+* A `DotPointText()` object can also be used which will render them as individual paragraphs indented with an asterisk.
