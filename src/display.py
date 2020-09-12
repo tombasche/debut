@@ -19,12 +19,16 @@ class AnimatedWriter:
         self.x = initial_x
         self.y += 1
 
-    def move_cursor(self):
-        self.x += 1
+    def move_cursor(self, amount: int = 1):
+        self.x += amount
 
-    def set_writing_coords(self):
+    def set_default_writing_coords(self):
         self.x += self.x_offset
         self.y += self.y_offset
+
+    def set_custom_writing_coords(self, x: int, y: int):
+        self.x += x
+        self.y += y
 
     @property
     def at_edge_of_screen(self) -> bool:
@@ -53,7 +57,7 @@ class DisplayText:
         **decoration
     }
 
-    delay_between_letters = 0.02
+    tab_size: int = 4
 
     @classmethod
     def display(
@@ -77,21 +81,32 @@ class DisplayText:
             screen=screen
         )
 
+        left_alignment = coords[1]
+
         if animate:
             w = AnimatedWriter(coords[1], coords[0], 0, 0, max_width)
             for word in text.split(" "):
 
                 if w.word_will_overflow(len(word)):
-                    w.new_line(coords[1])
+                    w.new_line(left_alignment)
 
                 for character in word:
-                    w.set_writing_coords()
+                    w.set_default_writing_coords()
 
                     if w.at_edge_of_screen:
-                        w.new_line(coords[1])
+                        w.new_line(left_alignment)
+
+                    if character == '\n':
+                        w.new_line(left_alignment)
+                        left_alignment = coords[1] - 1
+
+                        # need to wait for input _if_ it's specified
+
+                    if character == '\t':
+                        left_alignment += cls.tab_size
 
                     display_string(coords=[w.y, w.x], text=character)
-                    sleep(cls.delay_between_letters)
+                    sleep(character_delay(text))
                     screen.refresh()
                     w.move_cursor()
 
@@ -121,6 +136,10 @@ class DisplayText:
         for option in format_options:
             if option not in cls.formatting:
                 raise UnknownFormatOption(option)
+
+
+def character_delay(text: str) -> float:
+    return min(3 / len(text), 0.03)
 
 
 def get_or_set_color_pair(text_color: int, highlight_color: int) -> int:
