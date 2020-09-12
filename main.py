@@ -1,9 +1,12 @@
-from src.slide import Slide
+from src.slide import Slide, TitleSlide
 from src.slideshow import SlideShow
 from src.text import Text, DotPointText
 
 
 def main():
+    title_slide = TitleSlide(
+        title="Agile Principle #9"
+    )
     slide_1 = Slide(
         heading="Introduction",
         text=Text(["Continuous attention to technical excellence and good design enhances agility."])
@@ -61,7 +64,7 @@ def main():
             "The framework is something I created because ... why not. It uses 'curses' under the hood, a nearly 30-year old API that ships with UNIX/POSIX systems which efficiently writes text to the terminal."
         ])
     )
-    slide_show = SlideShow([slide_1, slide_2, slide_3, slide_4, slide_5, slide_6, slide_7],)
+    slide_show = SlideShow([title_slide, slide_1, slide_2, slide_3, slide_4, slide_5, slide_6, slide_7],)
     slide_show.present()
 
 

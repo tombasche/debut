@@ -77,7 +77,8 @@ class DisplayText:
         format_options: List[str] = None,
         highlight_color='black',
         text_color='white',
-        animate=True
+        animate=True,
+        custom_character_delay: float = None
     ):
 
         self.check_if_valid_options(format_options)
@@ -119,7 +120,7 @@ class DisplayText:
                         left_alignment = self._coords[1]
 
                     display_string(coords=[w.y, w.x], text=character)
-                    sleep(character_delay(text))
+                    sleep(custom_character_delay or character_delay(text))
                     self._screen.refresh()
                     w.move_cursor()
 
