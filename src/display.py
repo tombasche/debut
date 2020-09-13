@@ -112,13 +112,13 @@ class DisplayText:
                     if w.at_edge_of_screen:
                         w.new_line(left_alignment)
 
-                    if character == '\n':
+                    if is_newline_character(character):
                         w.new_line(left_alignment)
                         left_alignment = coords[1] -1
 
-                        if self._input_listener:
-                            self._input_listener.wait_for_input()
-                    elif character == '\t':
+                        self._advance_on_input()
+
+                    elif is_tab_character(character):
                         left_alignment += self.tab_size
 
                     else:
@@ -160,9 +160,21 @@ class DisplayText:
     def shift_y_by(self, shift: int):
         self._coords[0] += shift
 
+    def _advance_on_input(self):
+        if self._input_listener:
+            self._input_listener.wait_for_input()
+
 
 def character_delay(text: str) -> float:
     return min(3 / len(text), 0.03)
+
+
+def is_newline_character(character: str) -> bool:
+    return character == '\n'
+
+
+def is_tab_character(character: str) -> bool:
+    return character == '\t'
 
 
 def get_or_set_color_pair(text_color: int, highlight_color: int) -> int:
