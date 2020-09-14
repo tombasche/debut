@@ -26,9 +26,9 @@ class SlideShow:
             self.navigate()
             self.clear()
 
-    def inject_page_number(self, s):
+    def inject_page_number(self, screen):
         if self._show_page_number:
-            s.page_number = str(self.current_index + 1)
+            screen.page_number = str(self.current_index + 1)
 
     def initialise_screen(self):
         self.screen = newwin(*initscr().getmaxyx(), 0, 0)
