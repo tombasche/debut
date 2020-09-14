@@ -11,7 +11,7 @@ def main():
     slide_1 = Slide(
         heading="Introduction",
         text=Text(["Continuous attention to technical excellence and good design enhances agility."]),
-        border='I'
+        border="\\"
     )
     slide_2 = Slide(
         heading="What is technical excellence?",
@@ -20,7 +20,7 @@ def main():
             "This means software which works and software that is valuable.",
             "It means software that's easy to change at the drop of a hat!"
         ]),
-        border="|"
+        border="\\"
     )
     slide_3 = Slide(
         heading="What is good design?",
@@ -30,7 +30,7 @@ def main():
             "* takes into account aesthetic and functional considerations, ",
             "* and interacts efficiently within its environment."
         ]),
-        border="-"
+        border="\\"
     )
     slide_4 = Slide(
         heading="How do these things enhance agility?",
@@ -55,7 +55,7 @@ def main():
             "* Can the person reading the code understand what it does without you explaining it?",
             "* Is there something in this solution that might hinder us in future?"
         ]),
-        border="|"
+        border="\\"
     )
     slide_6 = Slide(
         heading="How do we maintain 'continuous attention' to these things?",
@@ -64,7 +64,7 @@ def main():
             "* Would they be happy with a 'hacky solution'? ",
             "* They're paying a lot of money for it!"
         ]),
-        border="/"
+        border="\\"
     )
     slide_7 = Slide(
         heading="So how do we get there?",
@@ -77,7 +77,7 @@ def main():
             "* 📺   Dozens of conference talks on YouTube!",
             "* 💬   TALK to your fellow software engineers about your code. You'll either be surprised by how much they have to say, or what they're willing to learn."
         ]),
-        border="-"
+        border="\\"
     )
     slide_8 = Slide(
         heading="Questions? ⁉️",
@@ -89,7 +89,7 @@ def main():
             "slide_show = SlideShow([title_slide, slide_1, slide_2, slide_3, slide_4, slide_5, slide_6, slide_7, slide_8],)",
             "slide_show.present()"
         ]),
-        border="|"
+        border="\\"
     )
     slide_show = SlideShow(
         slides=[title_slide, slide_1, slide_2, slide_3, slide_4, slide_5, slide_6, slide_7, slide_8],
