@@ -16,7 +16,8 @@ class Slide:
         animated_heading: bool = False,
         body_formatting_options: Optional[List[str]] = None,
         body_text_color: Optional[str] = None,
-        body_highlight_color: Optional[str] = None
+        body_highlight_color: Optional[str] = None,
+        border: Optional[str] = None
     ):
         self._heading = heading
         self._text = text
@@ -28,14 +29,22 @@ class Slide:
         self._body_text_color = body_text_color
         self._body_highlight_color = body_highlight_color
 
+        if border and len(border) > 1:
+            raise InvalidBorder(f"Border must be a single character, not '{border}'")
+
+        self._border = border
+
     def display(self, screen):
 
         input_listener = None
         if self.advance_on_input:
             input_listener = InputListener(screen)
+
+        if self._border:
+            self._display_border(screen)
         self._display_heading(screen, input_listener, )
 
-        slide_body = DisplayText(screen=screen, coords=[3, 3], input_listener=input_listener)
+        slide_body = DisplayText(screen=screen, coords=[4, 3], input_listener=input_listener)
         slide_body.display(
             text=self._text.render(),
             text_color=self._body_text_color,
@@ -47,7 +56,7 @@ class Slide:
 
     def _display_heading(self, screen, input_listener: InputListener):
 
-        heading_text = DisplayText(screen=screen, coords=[0, 5])
+        heading_text = DisplayText(screen=screen, coords=[1, 5])
         heading_text.display(
             text=self._heading,
             format_options=['bold', 'underline'],
@@ -55,7 +64,7 @@ class Slide:
             animate=self._animated_heading
         )
 
-        underline = DisplayText(screen=screen, coords=[1, 5])
+        underline = DisplayText(screen=screen, coords=[2, 5])
         underline.display(text="=" * len(self._heading), animate=False)
 
         if input_listener:
@@ -65,6 +74,9 @@ class Slide:
         max_height, _ = screen.getmaxyx()
         nav_indicator = DisplayText(screen=screen, coords=[max_height - 1, 1])
         nav_indicator.display(text="<< | >> ", highlight_color='red', text_color='white', animate=False)
+
+    def _display_border(self, screen):
+        screen.border(self._border)
 
 
 class TitleSlide:
@@ -114,3 +126,6 @@ class TitleSlide:
     def created_by(self) -> str:
         return f"By {self._author}"
 
+
+class InvalidBorder(Exception):
+    ...
