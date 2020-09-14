@@ -83,7 +83,10 @@ def main():
             "slide_show.present()"
         ])
     )
-    slide_show = SlideShow([title_slide, slide_1, slide_2, slide_3, slide_4, slide_5, slide_6, slide_7, slide_8])
+    slide_show = SlideShow(
+        slides=[title_slide, slide_1, slide_2, slide_3, slide_4, slide_5, slide_6, slide_7, slide_8],
+        show_page_numbers=True
+    )
     slide_show.present()
 
 

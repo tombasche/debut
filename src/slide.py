@@ -34,6 +34,8 @@ class Slide:
 
         self._border = border
 
+        self.page_number = None
+
     def display(self, screen):
 
         input_listener = None
@@ -42,8 +44,17 @@ class Slide:
 
         if self._border:
             self._display_border(screen)
+
+        if self.page_number:
+            self._show_page_number(screen)
+
         self._display_heading(screen, input_listener, )
 
+        self._display_body(input_listener, screen)
+
+        self._display_nav_indicator(screen)
+
+    def _display_body(self, input_listener, screen):
         slide_body = DisplayText(screen=screen, coords=[4, 3], input_listener=input_listener)
         slide_body.display(
             text=self._text.render(),
@@ -51,8 +62,6 @@ class Slide:
             highlight_color=self._body_highlight_color,
             format_options=self._body_formatting_options,
         )
-
-        self._display_nav_indicator(screen)
 
     def _display_heading(self, screen, input_listener: InputListener):
 
@@ -77,6 +86,11 @@ class Slide:
 
     def _display_border(self, screen):
         screen.border(self._border)
+
+    def _show_page_number(self, screen):
+        max_height, max_width = screen.getmaxyx()
+        page_number = DisplayText(screen=screen, coords=[max_height - 1, max_width // 2])
+        page_number.display(text=self.page_number, animate=False, text_color='white')
 
 
 class TitleSlide:
