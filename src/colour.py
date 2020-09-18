@@ -1,5 +1,6 @@
 from curses import (
     init_pair,
+    color_pair,
     COLOR_RED,
     COLOR_BLUE,
     COLOR_WHITE,
@@ -35,7 +36,10 @@ class ColourPairs:
             return self.cache[colour_pair]
 
         next_available_slot = self._register_new_pair(colour_pair, most_recent_pair)
-        return next_available_slot
+        return self._retrieve_color_pair(next_available_slot)
+
+    def _retrieve_color_pair(self, slot: int):
+        return color_pair(slot)
 
     @property
     def _most_recent_pair(self) -> int:

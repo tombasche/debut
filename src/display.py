@@ -108,7 +108,7 @@ class DisplayText:
         self._screen.refresh()
 
     def display_string(self, screen=None, coords=None, text=None, combined_options=None):
-        return screen.addstr(coords[0], coords[1], text, 1)
+        return screen.addstr(coords[0], coords[1], text, combined_options)
 
     def shift_y_by(self, shift: int):
         self._coords[0] += shift
