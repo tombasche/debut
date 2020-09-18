@@ -2,7 +2,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from src.interaction import InputListener, SPACEBAR_ASCII, BACK, FORWARD
+from debut.interaction import InputListener, SPACEBAR_ASCII, BACK, FORWARD
 
 
 class TestInteraction:

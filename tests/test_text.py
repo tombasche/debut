@@ -1,4 +1,4 @@
-from src.text import Text, DotPointText
+from debut.text import Text, DotPointText
 
 
 class TestTextRender:

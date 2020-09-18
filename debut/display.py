@@ -2,10 +2,10 @@ from functools import partial
 from time import sleep
 from typing import List, Optional, Callable, Tuple
 
-from src.animate import AnimatedWriter
-from src.colour import ColourPairs, COLOURS, ColourPair
-from src.formatting import Formatter
-from src.interaction import InputListener
+from debut.animate import AnimatedWriter
+from debut.colour import ColourPairs, COLOURS, ColourPair
+from debut.formatting import Formatter
+from debut.interaction import InputListener
 
 
 COLOUR_PAIRS = ColourPairs()

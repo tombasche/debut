@@ -1,6 +1,4 @@
-from src.slide import Slide, TitleSlide
-from src.slideshow import SlideShow
-from src.text import Text, DotPointText
+from debut import Slide, TitleSlide, SlideShow, Text, DotPointText
 
 
 def main():
@@ -83,7 +81,7 @@ def main():
         heading="Questions? ⁉️",
         text=Text([
             "This presentation was created by me and is on github: ",
-            "* github.com/tombasche/agile-manifesto-presentation",
+            "* github.com/tombasche/debut",
             "The framework is something I created because ... why not. It uses 'curses' under the hood, a nearly 30-year old API that ships with UNIX/POSIX systems which efficiently writes text to the terminal.",
             "You could pull the code down and create your own 'slideshow' with it if you were so inclined...\n",
             "slide_show = SlideShow([title_slide, slide_1, slide_2, slide_3, slide_4, slide_5, slide_6, slide_7, slide_8],)",

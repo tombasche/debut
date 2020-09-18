@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from src.colour import ColourPairs, TooManyColoursSpecified, ColourPair
+from debut.colour import ColourPairs, TooManyColoursSpecified, ColourPair
 
 
 class TestColourPairs:

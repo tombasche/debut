@@ -1,7 +1,9 @@
-## Usage
+# Debut
+
+## Have a play first
 
 ```
-python main.py
+python examples/main.py
 ```
 
 The slideshow will pause for input after the headers and each paragraph of text after it animates.
@@ -11,16 +13,12 @@ Once the nav indicator appears in the bottom left corner then you can choose to 
 Note that this will only work in supported terminals ... the IntelliJ terminal isn't one of them.
 
 
-## The SlideShow framework
-
-* Probably should think of a name for it and make it a separate library!
-
 ### Make your own slideshow: 
 
+Clone this repo and install it with `python3 setup.py install`
+
 ```python
-from slideshow import SlideShow
-from slide import Slide
-from text import Text
+from debut import SlideShow, Slide, TitleSlide, Text
 
 title_slide = TitleSlide(
     title="Dagon",

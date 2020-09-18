@@ -1,9 +1,9 @@
 from curses import curs_set
 from typing import List, Optional
 
-from src.display import DisplayText, AnimatedText, DisplayTextFactory
-from src.interaction import InputListener
-from src.text import Text
+from debut.display import DisplayTextFactory
+from debut.interaction import InputListener
+from debut.text import Text
 
 
 class Slide:

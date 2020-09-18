@@ -2,7 +2,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from src.display import DisplayTextFactory
+from debut.display import DisplayTextFactory
 
 
 class TestDisplayText:

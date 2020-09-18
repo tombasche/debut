@@ -2,7 +2,7 @@ from curses import A_BOLD, A_UNDERLINE, A_STANDOUT
 from functools import reduce
 from typing import List, Dict
 
-from src.colour import COLOURS
+from debut.colour import COLOURS
 
 
 class Formatter:

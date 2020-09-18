@@ -1,8 +1,8 @@
-from curses import initscr, noecho, start_color, newwin, use_default_colors
+from curses import initscr, noecho, start_color, newwin, use_default_colors, echo
 from typing import List
 
-from src.interaction import InputListener
-from src.slide import Slide
+from debut.interaction import InputListener
+from debut.slide import Slide
 
 
 class SlideShow:
@@ -19,12 +19,15 @@ class SlideShow:
     def present(self):
 
         self.initialise_screen()
-        while self.current_index <= self.last_slide_index:
-            s = self._slides[self.current_index]
-            self.inject_page_number(s)
-            s.display(self.screen)
-            self.navigate()
-            self.clear()
+        try:
+            while self.current_index <= self.last_slide_index:
+                s = self._slides[self.current_index]
+                self.inject_page_number(s)
+                s.display(self.screen)
+                self.navigate()
+                self.clear()
+        finally:
+            echo()
 
     def inject_page_number(self, screen):
         if self._show_page_number:
