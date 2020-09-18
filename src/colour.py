@@ -39,9 +39,9 @@ class ColourPairs:
 
     @property
     def _most_recent_pair(self) -> int:
-        color_pair_values = list(self.cache.values())
-        if color_pair_values:
-            most_recent_pair = max(color_pair_values)
+        colour_pair_values = list(self.cache.values())
+        if colour_pair_values:
+            most_recent_pair = max(colour_pair_values)
         else:
             most_recent_pair = 0
         return most_recent_pair

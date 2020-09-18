@@ -1,7 +1,7 @@
 from curses import curs_set
 from typing import List, Optional
 
-from src.display import DisplayText, AnimatedText
+from src.display import DisplayText, AnimatedText, DisplayTextFactory
 from src.interaction import InputListener
 from src.text import Text
 
@@ -15,8 +15,8 @@ class Slide:
         advance_on_input: bool = True,
         animated_heading: bool = False,
         body_formatting_options: Optional[List[str]] = None,
-        body_text_color: Optional[str] = None,
-        body_highlight_color: Optional[str] = None,
+        body_text_colour: Optional[str] = None,
+        body_highlight_colour: Optional[str] = None,
         border: Optional[str] = None
     ):
         self._heading = heading
@@ -26,8 +26,8 @@ class Slide:
         self._animated_heading = animated_heading
 
         self._body_formatting_options = body_formatting_options
-        self._body_text_color = body_text_color
-        self._body_highlight_color = body_highlight_color
+        self._body_text_colour = body_text_colour
+        self._body_highlight_colour = body_highlight_colour
 
         if border and len(border) > 1:
             raise InvalidBorder(f"Border must be a single character, not '{border}'")
@@ -55,15 +55,19 @@ class Slide:
         self._display_nav_indicator(screen)
 
     def _display_body(self, input_listener, screen):
-        slide_body = AnimatedText(screen=screen, coords=[4, 3], input_listener=input_listener)
+        slide_body = DisplayTextFactory.create(screen=screen, coords=[4, 3], input_listener=input_listener, animate=True)
         slide_body.display(text=self._text.render(), format_options=self._body_formatting_options)
 
     def _display_heading(self, screen, input_listener: InputListener):
 
-        heading_text = DisplayText(screen=screen, coords=[1, 5])
-        heading_text.display(text=self._heading, format_options=['bold', 'underline'])
+        heading_text = DisplayTextFactory.create(screen=screen, coords=[1, 5], animate=self._animated_heading)
+        heading_text.display(
+            text=self._heading,
+            format_options=['bold', 'underline'],
+            highlight_colour='blue'
+        )
 
-        underline = DisplayText(screen=screen, coords=[2, 5])
+        underline = DisplayTextFactory.create(screen=screen, coords=[2, 5])
         underline.display(text="=" * len(self._heading))
 
         if input_listener:
@@ -71,15 +75,15 @@ class Slide:
 
     def _display_nav_indicator(self, screen):
         max_height, _ = screen.getmaxyx()
-        nav_indicator = DisplayText(screen=screen, coords=[max_height - 1, 1])
-        nav_indicator.display(text="<< | >> ")
+        nav_indicator = DisplayTextFactory.create(screen=screen, coords=[max_height - 1, 1])
+        nav_indicator.display(text="<< | >> ", highlight_colour='red', text_colour='white')
 
     def _display_border(self, screen):
         screen.border(self._border)
 
     def _show_page_number(self, screen):
         max_height, max_width = screen.getmaxyx()
-        page_number = DisplayText(screen=screen, coords=[max_height - 1, max_width // 2])
+        page_number = DisplayTextFactory.create(screen=screen, coords=[max_height - 1, max_width // 2])
         page_number.display(text=self.page_number)
 
 
@@ -98,7 +102,7 @@ class TitleSlide:
         title_y = center_y - 2
         input_listener = InputListener(screen)
 
-        title_text = AnimatedText(screen=screen, coords=[title_y, title_x])
+        title_text = DisplayTextFactory.create(screen=screen, coords=[title_y, title_x], animate=True)
         title_text.display(self._title, format_options=['bold'])
         input_listener.wait_for_input()
 
@@ -107,7 +111,7 @@ class TitleSlide:
 
     def _display_animated_line(self, screen, x: int, y: int):
 
-        line = AnimatedText(screen=screen, coords=[y, x])
+        line = DisplayTextFactory.create(screen=screen, coords=[y, x], animate=True, animation_delay=0.005)
         underline = "=" * self.title_length
         line.display(underline)
 

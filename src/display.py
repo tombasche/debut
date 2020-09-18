@@ -1,6 +1,6 @@
 from functools import partial
 from time import sleep
-from typing import List, Optional, Callable
+from typing import List, Optional, Callable, Tuple
 
 from src.animate import AnimatedWriter
 from src.colour import ColourPairs, COLOURS, ColourPair
@@ -8,20 +8,55 @@ from src.formatting import Formatter
 from src.interaction import InputListener
 
 
-cp = ColourPairs()
+COLOUR_PAIRS = ColourPairs()
+
+
+class DisplayTextFactory:
+
+    @staticmethod
+    def create(
+        screen,
+        coords: List[int],
+        input_listener: Optional[InputListener] = None,
+        colour_pairs: Optional[ColourPairs] = None,
+        animate: bool = False,
+        animation_delay: Optional[float] = None,
+    ):
+        if animate:
+            at = AnimatedText(
+                screen,
+                coords,
+                input_listener,
+                colour_pairs=colour_pairs
+            )
+            at.ANIMATION_DELAY = animation_delay
+            return at
+
+        return DisplayText(
+            screen,
+            coords,
+            input_listener,
+            colour_pairs=colour_pairs
+        )
 
 
 class DisplayText:
 
     tab_size: int = 4
 
-    def __init__(self, screen, coords: List[int], input_listener: Optional[InputListener] = None):
+    def __init__(
+        self,
+        screen,
+        coords: List[int],
+        input_listener: Optional[InputListener] = None,
+        colour_pairs: Optional[ColourPairs] = None
+    ):
         self._screen = screen
         self._coords = coords
 
-        max_height, max_width = self._screen.getmaxyx()
-        self.max_height: int = max_height
-        self.max_width: int = max_width
+        max_height, max_width = self.get_screen_dimensions()
+        self.max_height = max_height
+        self.max_width = max_width
 
         self._input_listener = input_listener
 
@@ -29,12 +64,17 @@ class DisplayText:
 
         self._display_func = None
 
+        self._colour_pairs = colour_pairs or COLOUR_PAIRS
+
+    def get_screen_dimensions(self) -> Tuple[int, int]:
+        return self._screen.getmaxyx()
+
     def display(
         self,
         text: str,
         format_options: List[str] = None,
-        highlight_colour=None,
         text_colour=None,
+        highlight_colour=None,
     ):
         self._instantiate_display_options(text_colour, highlight_colour, format_options)
         self._display(text)
@@ -43,22 +83,22 @@ class DisplayText:
     def _display(self, text: str):
         self._display_func(coords=[self._coords[0], self._coords[1]], text=text)
 
-    def _instantiate_display_options(self, text_colour, highlight_colour, format_options):
-        highlight_colour = highlight_colour or 'black'
+    def _instantiate_display_options(self, text_colour: str, highlight_colour: str, format_options: List[str]):
         text_colour = text_colour or 'white'
+        highlight_colour = highlight_colour or 'black'
         display_string_func = self._build_display_function(text_colour, highlight_colour, format_options)
         self._display_func = display_string_func
 
     def _build_display_function(self, text_colour: str, highlight_colour: str, format_options: List[str]) -> Callable:
         colour_pair = ColourPair(text=COLOURS[text_colour], highlight=COLOURS[highlight_colour])
-        colour_pair_choice = cp.get(colour_pair)
+        colour_pair_choice = self._colour_pairs.get(colour_pair)
         formatter = Formatter(
             colour_pair=colour_pair_choice,
             format_options=format_options
         )
         combined_options = formatter.combine_options()
         display_string = partial(
-            self._display_string,
+            self.display_string,
             combined_options=combined_options,
             screen=self._screen
         )
@@ -67,8 +107,8 @@ class DisplayText:
     def auto_redraw(self):
         self._screen.refresh()
 
-    def _display_string(self, screen=None, coords=None, text=None, combined_options=None):
-        return screen.addstr(coords[0], coords[1], text, combined_options)
+    def display_string(self, screen=None, coords=None, text=None, combined_options=None):
+        return screen.addstr(coords[0], coords[1], text, 1)
 
     def shift_y_by(self, shift: int):
         self._coords[0] += shift
@@ -79,6 +119,8 @@ class DisplayText:
 
 
 class AnimatedText(DisplayText):
+
+    ANIMATION_DELAY: Optional[float] = None
 
     def _display(self, text: str):
         w = AnimatedWriter(self._coords[1], self._coords[0], 0, 0, self.max_width)
@@ -106,7 +148,7 @@ class AnimatedText(DisplayText):
                     self._left_alignment = self._coords[1]
 
                 self._display_func(coords=[w.y, w.x], text=character)
-                sleep(self._character_delay(text))
+                self.delay(self._character_delay(text))
                 self.auto_redraw()
                 w.move_cursor()
 
@@ -115,8 +157,11 @@ class AnimatedText(DisplayText):
 
         self.auto_redraw()
 
+    def delay(self, t: float):
+        sleep(t)
+
     def _character_delay(self, text: str) -> float:
-        return min(3 / len(text), 0.03)
+        return self.ANIMATION_DELAY or min(3 / len(text), 0.03)
 
     def _is_newline_character(self, character: str) -> bool:
         return character == '\n'

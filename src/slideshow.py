@@ -1,4 +1,4 @@
-from curses import initscr, noecho, start_color, newwin
+from curses import initscr, noecho, start_color, newwin, use_default_colors
 from typing import List
 
 from src.interaction import InputListener
@@ -34,6 +34,7 @@ class SlideShow:
         self.screen = newwin(*initscr().getmaxyx(), 0, 0)
         self.screen.keypad(True)
         start_color()
+        use_default_colors()
         noecho()
 
     def navigate(self):
