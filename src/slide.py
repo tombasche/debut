@@ -1,7 +1,7 @@
 from curses import curs_set
 from typing import List, Optional
 
-from src.display import DisplayText
+from src.display import DisplayText, AnimatedText
 from src.interaction import InputListener
 from src.text import Text
 
@@ -55,26 +55,16 @@ class Slide:
         self._display_nav_indicator(screen)
 
     def _display_body(self, input_listener, screen):
-        slide_body = DisplayText(screen=screen, coords=[4, 3], input_listener=input_listener)
-        slide_body.display(
-            text=self._text.render(),
-            text_color=self._body_text_color,
-            highlight_color=self._body_highlight_color,
-            format_options=self._body_formatting_options,
-        )
+        slide_body = AnimatedText(screen=screen, coords=[4, 3], input_listener=input_listener)
+        slide_body.display(text=self._text.render(), format_options=self._body_formatting_options)
 
     def _display_heading(self, screen, input_listener: InputListener):
 
         heading_text = DisplayText(screen=screen, coords=[1, 5])
-        heading_text.display(
-            text=self._heading,
-            format_options=['bold', 'underline'],
-            highlight_color='blue',
-            animate=self._animated_heading
-        )
+        heading_text.display(text=self._heading, format_options=['bold', 'underline'])
 
         underline = DisplayText(screen=screen, coords=[2, 5])
-        underline.display(text="=" * len(self._heading), animate=False)
+        underline.display(text="=" * len(self._heading))
 
         if input_listener:
             input_listener.wait_for_input()
@@ -82,7 +72,7 @@ class Slide:
     def _display_nav_indicator(self, screen):
         max_height, _ = screen.getmaxyx()
         nav_indicator = DisplayText(screen=screen, coords=[max_height - 1, 1])
-        nav_indicator.display(text="<< | >> ", highlight_color='red', text_color='white', animate=False)
+        nav_indicator.display(text="<< | >> ")
 
     def _display_border(self, screen):
         screen.border(self._border)
@@ -90,7 +80,7 @@ class Slide:
     def _show_page_number(self, screen):
         max_height, max_width = screen.getmaxyx()
         page_number = DisplayText(screen=screen, coords=[max_height - 1, max_width // 2])
-        page_number.display(text=self.page_number, animate=False, text_color='white')
+        page_number.display(text=self.page_number)
 
 
 class TitleSlide:
@@ -108,8 +98,8 @@ class TitleSlide:
         title_y = center_y - 2
         input_listener = InputListener(screen)
 
-        title_text = DisplayText(screen=screen, coords=[title_y, title_x])
-        title_text.display(self._title, format_options=['bold'], highlight_color='blue', text_color='white')
+        title_text = AnimatedText(screen=screen, coords=[title_y, title_x])
+        title_text.display(self._title, format_options=['bold'])
         input_listener.wait_for_input()
 
         self._display_animated_line(screen, title_x, center_y)
@@ -117,7 +107,7 @@ class TitleSlide:
 
     def _display_animated_line(self, screen, x: int, y: int):
 
-        line = DisplayText(screen=screen, coords=[y, x])
+        line = AnimatedText(screen=screen, coords=[y, x])
         underline = "=" * self.title_length
         line.display(underline)
 
@@ -126,7 +116,7 @@ class TitleSlide:
             next_line = [c for c in underline]
             next_line[i] = ">"
             next_line[-i - 1] = "<"
-            line.display("".join(next_line), animate=True, custom_character_delay=0.005)
+            line.display("".join(next_line))
 
         line.shift_y_by(1)
         line.display(self.created_by)

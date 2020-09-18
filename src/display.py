@@ -1,65 +1,17 @@
-from curses import A_BOLD, A_UNDERLINE, COLOR_RED, COLOR_BLACK, init_pair, color_pair, COLOR_WHITE, COLOR_BLUE, \
-    A_STANDOUT
-from dataclasses import dataclass
-from functools import reduce, partial
+from functools import partial
 from time import sleep
-from typing import List, Dict, Tuple, Optional
+from typing import List, Optional, Callable
 
+from src.animate import AnimatedWriter
+from src.colour import ColourPairs, COLOURS, ColourPair
+from src.formatting import Formatter
 from src.interaction import InputListener
 
 
-@dataclass
-class AnimatedWriter:
-    x: int
-    y: int
-
-    x_offset: int
-    y_offset: int
-
-    max_width: int
-
-    def new_line(self, initial_x: int):
-        self.x = initial_x
-        self.y += 1
-
-    def move_cursor(self, amount: int = 1):
-        self.x += amount
-
-    def set_default_writing_coords(self):
-        self.x += self.x_offset
-        self.y += self.y_offset
-
-    def set_custom_writing_coords(self, x: int, y: int):
-        self.x += x
-        self.y += y
-
-    @property
-    def at_edge_of_screen(self) -> bool:
-        return self.x >= self.max_width
-
-    def word_will_overflow(self, word_length: int) -> bool:
-        return word_length + self.x + self.x_offset >= self.max_width
+cp = ColourPairs()
 
 
 class DisplayText:
-
-    colors = {
-        'red': COLOR_RED,
-        'black': COLOR_BLACK,
-        'white': COLOR_WHITE,
-        'blue': COLOR_BLUE,
-    }
-
-    decoration = {
-        'bold': A_BOLD,
-        'underline': A_UNDERLINE,
-        'highlighted': A_STANDOUT,
-    }
-
-    formatting = {
-        **colors,
-        **decoration
-    }
 
     tab_size: int = 4
 
@@ -73,89 +25,50 @@ class DisplayText:
 
         self._input_listener = input_listener
 
+        self._left_alignment = self._coords[1]
+
+        self._display_func = None
+
     def display(
         self,
         text: str,
         format_options: List[str] = None,
-        highlight_color=None,
-        text_color=None,
-        animate=True,
-        custom_character_delay: float = None
+        highlight_colour=None,
+        text_colour=None,
     ):
+        self._instantiate_display_options(text_colour, highlight_colour, format_options)
+        self._display(text)
+        self.auto_redraw()
 
-        highlight_color = highlight_color or 'black'
-        text_color = text_color or 'white'
+    def _display(self, text: str):
+        self._display_func(coords=[self._coords[0], self._coords[1]], text=text)
 
-        self.check_if_valid_options(format_options)
-        color_pair_choice = get_or_set_color_pair(self.colors[text_color], self.colors[highlight_color])
+    def _instantiate_display_options(self, text_colour, highlight_colour, format_options):
+        highlight_colour = highlight_colour or 'black'
+        text_colour = text_colour or 'white'
+        display_string_func = self._build_display_function(text_colour, highlight_colour, format_options)
+        self._display_func = display_string_func
 
+    def _build_display_function(self, text_colour: str, highlight_colour: str, format_options: List[str]) -> Callable:
+        colour_pair = ColourPair(text=COLOURS[text_colour], highlight=COLOURS[highlight_colour])
+        colour_pair_choice = cp.get(colour_pair)
+        formatter = Formatter(
+            colour_pair=colour_pair_choice,
+            format_options=format_options
+        )
+        combined_options = formatter.combine_options()
         display_string = partial(
             self._display_string,
-            color_choice=color_pair_choice,
-            format_options=format_options,
+            combined_options=combined_options,
             screen=self._screen
         )
-
-        left_alignment = self._coords[1]
-        coords = self._coords
-
-        if animate:
-            w = AnimatedWriter(coords[1], coords[0], 0, 0, self.max_width)
-            for word in text.split(" "):
-
-                if w.word_will_overflow(len(word)):
-                    w.new_line(left_alignment)
-
-                for character in word:
-                    w.set_default_writing_coords()
-
-                    if w.at_edge_of_screen:
-                        w.new_line(left_alignment)
-
-                    if is_newline_character(character):
-                        w.new_line(left_alignment)
-                        left_alignment = coords[1] -1
-
-                        self._advance_on_input()
-
-                    elif is_tab_character(character):
-                        left_alignment += self.tab_size
-
-                    else:
-                        left_alignment = self._coords[1]
-
-                    display_string(coords=[w.y, w.x], text=character)
-                    sleep(custom_character_delay or character_delay(text))
-                    self.auto_redraw()
-                    w.move_cursor()
-
-                w.move_cursor()
-                self.auto_redraw()
-        else:
-            display_string(coords=[coords[0], coords[1]], text=text)
-
-        self.auto_redraw()
+        return display_string
 
     def auto_redraw(self):
         self._screen.refresh()
 
-    def _display_string(self, screen=None, coords=None, text=None, color_choice=None, format_options=None):
-        return screen.addstr(coords[0], coords[1], text, self.combine_options(color_pair(color_choice), format_options))
-
-    def combine_options(self, color_pair, format_options: List[str]):
-        if not format_options:
-            return color_pair
-        if len(format_options) > 1:
-            options = reduce(lambda x, y: self.formatting[x] | self.formatting[y], format_options)
-            return options | color_pair
-        return self.formatting[format_options[0]]
-
-    def check_if_valid_options(self, format_options: List[str]):
-        if not format_options:
-            return
-        for option in format_options:
-            if option not in self.formatting:
-                raise UnknownFormatOption(option)
+    def _display_string(self, screen=None, coords=None, text=None, combined_options=None):
+        return screen.addstr(coords[0], coords[1], text, combined_options)
 
     def shift_y_by(self, shift: int):
         self._coords[0] += shift
@@ -165,41 +78,48 @@ class DisplayText:
             self._input_listener.wait_for_input()
 
 
-def character_delay(text: str) -> float:
-    return min(3 / len(text), 0.03)
+class AnimatedText(DisplayText):
 
+    def _display(self, text: str):
+        w = AnimatedWriter(self._coords[1], self._coords[0], 0, 0, self.max_width)
+        for word in text.split(" "):
 
-def is_newline_character(character: str) -> bool:
-    return character == '\n'
+            if w.word_will_overflow(len(word)):
+                w.new_line(self._left_alignment)
 
+            for character in word:
+                w.set_default_writing_coords()
 
-def is_tab_character(character: str) -> bool:
-    return character == '\t'
+                if w.at_edge_of_screen:
+                    w.new_line(self._left_alignment)
 
+                if self._is_newline_character(character):
+                    w.new_line(self._left_alignment)
+                    self._left_alignment = self._coords[1] - 1
 
-def get_or_set_color_pair(text_color: int, highlight_color: int) -> int:
-    color_pair_values = list(COLOR_PAIR_CACHE.values())
-    if color_pair_values:
-        last_pair = max(color_pair_values)
-    else:
-        last_pair = 0
-    if last_pair == 256:
-        raise TooManyColorsSpecified
-    if (text_color, highlight_color) in COLOR_PAIR_CACHE:
-        return COLOR_PAIR_CACHE[(text_color, highlight_color)]
+                    self._advance_on_input()
 
-    next_available_pair = last_pair + 1
-    COLOR_PAIR_CACHE[(text_color, highlight_color)] = next_available_pair
-    init_pair(next_available_pair, text_color, highlight_color)
-    return next_available_pair
+                elif self._is_tab_character(character):
+                    self._left_alignment += self.tab_size
 
+                else:
+                    self._left_alignment = self._coords[1]
 
-COLOR_PAIR_CACHE: Dict[Tuple[int, int], int] = {}
+                self._display_func(coords=[w.y, w.x], text=character)
+                sleep(self._character_delay(text))
+                self.auto_redraw()
+                w.move_cursor()
 
+            w.move_cursor()
+            self.auto_redraw()
 
-class UnknownFormatOption(Exception):
-    ...
+        self.auto_redraw()
 
+    def _character_delay(self, text: str) -> float:
+        return min(3 / len(text), 0.03)
 
-class TooManyColorsSpecified(Exception):
-    ...
+    def _is_newline_character(self, character: str) -> bool:
+        return character == '\n'
+
+    def _is_tab_character(self, character: str) -> bool:
+        return character == '\t'
