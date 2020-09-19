@@ -1,5 +1,7 @@
 # Debut
 
+![](example.gif)
+
 ## Have a play first
 
 ```
