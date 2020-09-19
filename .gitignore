@@ -5,3 +5,4 @@
 build/
 dist/
 debut.egg-info/
+venv/*

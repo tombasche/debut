@@ -1,5 +1,7 @@
 from curses import start_color, use_default_colors, initscr, newwin, noecho, echo
 
+from typing import Tuple
+
 
 class ScreenInterface:
 
@@ -17,6 +19,11 @@ class ScreenInterface:
 
     def new(self):
         self._create_screen()
+
+    @property
+    def screen_dimensions(self) -> Tuple[int, int]:
+        height, width = self._screen.getmaxyx()
+        return height, width
 
     def _create_screen(self):
         self._screen = self.new_window()

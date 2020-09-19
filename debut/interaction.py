@@ -17,7 +17,8 @@ class InputListener:
                 return
 
     def get_input(self) -> int:
-        return int(self._screen.getch())
+        input_result = self._screen.getch()
+        return int(input_result)
 
     def pressed_spacebar(self, keypress: int) -> bool:
         return keypress == SPACEBAR_ASCII
