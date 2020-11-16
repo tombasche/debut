@@ -21,36 +21,6 @@ class TestDisplayText:
         colour_pairs.get.return_value = 1
         return colour_pairs
 
-    def test_normal_display_text_without_options(self, mock_screen, mock_colour_pairs):
-        text = DisplayTextFactory.create(
-            screen=mock_screen,
-            coords=[1, 2],
-            colour_pairs=mock_colour_pairs
-        )
-        text.display_string = Mock()
-        text.display(self.sample_text)
-        text.display_string.assert_called_with(
-            combined_options=1,
-            coords=[1, 2],
-            text=self.sample_text,
-            screen=mock_screen
-        )
-
-    def test_normal_display_text_with_formatting_options(self, mock_screen, mock_colour_pairs):
-        text = DisplayTextFactory.create(
-            screen=mock_screen,
-            coords=[1, 2],
-            colour_pairs=mock_colour_pairs,
-        )
-        text.display_string = Mock()
-        text.display(self.sample_text, format_options=['bold', 'underline'])
-        text.display_string.assert_called_with(
-            combined_options=2228225,
-            coords=[1, 2],
-            text=self.sample_text,
-            screen=mock_screen
-        )
-
     def test_animated_display_without_options(self, mock_screen, mock_colour_pairs):
         text = DisplayTextFactory.create(
             screen=mock_screen,

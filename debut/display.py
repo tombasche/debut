@@ -21,35 +21,30 @@ class DisplayTextFactory:
         colour_pairs: Optional[ColourPairs] = None,
         animate: bool = False,
         animation_delay: Optional[float] = None,
-    ):
-        if animate:
-            at = AnimatedText(
-                screen,
-                coords,
-                input_listener,
-                colour_pairs=colour_pairs
-            )
-            at.ANIMATION_DELAY = animation_delay
-            return at
-
-        return DisplayText(
+    ) -> 'DisplayText':
+        dt = DisplayText(
             screen,
             coords,
             input_listener,
-            colour_pairs=colour_pairs
+            colour_pairs=colour_pairs,
+            animated=animate
         )
+        dt.ANIMATION_DELAY = animation_delay
+        return dt
 
 
 class DisplayText:
 
-    tab_size: int = 4
+    TAB_SIZE: int = 4
+    ANIMATION_DELAY: Optional[float] = None
 
     def __init__(
         self,
         screen,
         coords: List[int],
         input_listener: Optional[InputListener] = None,
-        colour_pairs: Optional[ColourPairs] = None
+        colour_pairs: Optional[ColourPairs] = None,
+        animated: bool = True
     ):
         self._screen = screen
         self._coords = coords
@@ -66,6 +61,8 @@ class DisplayText:
 
         self._colour_pairs = colour_pairs or COLOUR_PAIRS
 
+        self._animated = animated
+
     def get_screen_dimensions(self) -> Tuple[int, int]:
         return self._screen.getmaxyx()
 
@@ -81,7 +78,42 @@ class DisplayText:
         self.auto_redraw()
 
     def _display(self, text: str):
-        self._display_func(coords=[self._coords[0], self._coords[1]], text=text)
+        w = AnimatedWriter(self._coords[1], self._coords[0], 0, 0, self.max_width)
+        for word in text.split(" "):
+
+            if w.word_will_overflow(len(word)):
+                w.new_line(self._left_alignment)
+
+            for character in word:
+                w.set_default_writing_coords()
+
+                if w.at_edge_of_screen:
+                    w.new_line(self._left_alignment)
+
+                if self._is_newline_character(character):
+                    w.new_line(self._left_alignment)
+                    self._left_alignment = self._coords[1] - 1
+
+                    self._advance_on_input()
+
+                elif self._is_tab_character(character):
+                    self._left_alignment += self.TAB_SIZE
+
+                else:
+                    self._left_alignment = self._coords[1]
+
+                self._display_func(coords=[w.y, w.x], text=character)
+                self.delay(self._character_delay(text))
+                if self._animated:
+                    self.auto_redraw()
+                w.move_cursor()
+
+            w.move_cursor()
+            if self._animated:
+                self.auto_redraw()
+
+        if self._animated:
+            self.auto_redraw()
 
     def _instantiate_display_options(self, text_colour: str, highlight_colour: str, format_options: List[str]):
         text_colour = text_colour or 'white'
@@ -116,46 +148,6 @@ class DisplayText:
     def _advance_on_input(self):
         if self._input_listener:
             self._input_listener.wait_for_input()
-
-
-class AnimatedText(DisplayText):
-
-    ANIMATION_DELAY: Optional[float] = None
-
-    def _display(self, text: str):
-        w = AnimatedWriter(self._coords[1], self._coords[0], 0, 0, self.max_width)
-        for word in text.split(" "):
-
-            if w.word_will_overflow(len(word)):
-                w.new_line(self._left_alignment)
-
-            for character in word:
-                w.set_default_writing_coords()
-
-                if w.at_edge_of_screen:
-                    w.new_line(self._left_alignment)
-
-                if self._is_newline_character(character):
-                    w.new_line(self._left_alignment)
-                    self._left_alignment = self._coords[1] - 1
-
-                    self._advance_on_input()
-
-                elif self._is_tab_character(character):
-                    self._left_alignment += self.tab_size
-
-                else:
-                    self._left_alignment = self._coords[1]
-
-                self._display_func(coords=[w.y, w.x], text=character)
-                self.delay(self._character_delay(text))
-                self.auto_redraw()
-                w.move_cursor()
-
-            w.move_cursor()
-            self.auto_redraw()
-
-        self.auto_redraw()
 
     def delay(self, t: float):
         sleep(t)
