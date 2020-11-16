@@ -43,7 +43,6 @@ class Slide:
         self._display_factory_method = DisplayTextFactory.create
         self._input_listener_class = InputListener
 
-
     def display(self, screen):
 
         input_listener = None

@@ -107,7 +107,7 @@ class DisplayText:
     def auto_redraw(self):
         self._screen.refresh()
 
-    def display_string(self, screen=None, coords=None, text=None, combined_options=None):
+    def display_string(self, screen=None, coords=None, text: Optional[str] = None, combined_options=None):
         return screen.addstr(coords[0], coords[1], text, combined_options)
 
     def shift_y_by(self, shift: int):
