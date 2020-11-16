@@ -12,6 +12,7 @@ class Slide:
         heading: str,
         text: Text,
         advance_on_input: bool = True,
+        animated_body: bool = True,
         animated_heading: bool = False,
         body_formatting_options: Optional[List[str]] = None,
         body_text_colour: Optional[str] = None,
@@ -23,6 +24,7 @@ class Slide:
         self.advance_on_input = advance_on_input
 
         self._animated_heading = animated_heading
+        self._animated_body = animated_body
 
         self._body_formatting_options = body_formatting_options
         self._body_text_colour = body_text_colour
@@ -40,6 +42,7 @@ class Slide:
 
         self._display_factory_method = DisplayTextFactory.create
         self._input_listener_class = InputListener
+
 
     def display(self, screen):
 
@@ -60,7 +63,11 @@ class Slide:
         self._display_nav_indicator(screen)
 
     def _display_body(self, input_listener, screen):
-        slide_body = self._display_factory_method(screen=screen, coords=[4, 3], input_listener=input_listener, animate=True)
+        slide_body = self._display_factory_method(
+            screen=screen, coords=[4, 3],
+            input_listener=input_listener,
+            animate=self._animated_body
+        )
         slide_body.display(text=self._text.render(), format_options=self._body_formatting_options)
 
     def _display_heading(self, screen, input_listener: InputListener):
